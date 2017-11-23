@@ -4,6 +4,8 @@ import com.retail.domain.{Affiliate, Employee, Order, User}
 
 /**
   * Entry point to the pricing service.
+  *
+  * TODO This should really be implemented as a chain of monads, maybe for another day.
   */
 object PricingService {
 
