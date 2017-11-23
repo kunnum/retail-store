@@ -14,14 +14,13 @@ object PricingService {
     * @param order Order that is being placed.
     * @return The discounted price of the order.
     */
-  def applyDiscount(user: User, order: Order): BigDecimal = {
+  def applyDiscount(order: Order)(implicit user: User): BigDecimal = {
     val pricer = user match {
       case User(Employee, _) => EmployeePricer
-      case User( Affiliate, _) => AffiliatePricer
+      case User(Affiliate, _) => AffiliatePricer
       case _ => LoyaltyPricer
     }
-    val pricedOrder = pricer.price(user, order)
-    if (!order.isGrocery) bulkPrice(pricedOrder.value) else pricedOrder.value
+    BulkPricer.price(pricer.price(order)).value
   }
 
   /*
@@ -40,7 +39,7 @@ trait Pricer {
     * @param order Order to be priced.
     * @return Discounted price.
     */
-  def price(user: User, order: Order): Order
+  def price(order: Order)(implicit user: User): Order
 }
 
 /**
@@ -53,7 +52,7 @@ object EmployeePricer extends Pricer {
     * @param order Order to be priced.
     * @return Discounted price.
     */
-  def price(user: User, order: Order) = order.copy(value = order.value * 0.7)
+  def price(order: Order)(implicit user: User) = order.copy(value = order.value * 0.7)
 }
 
 /**
@@ -66,7 +65,7 @@ object AffiliatePricer extends Pricer {
     * @param order Order to be priced.
     * @return Discounted price.
     */
-  def price(user: User, order: Order) = order.copy(value = order.value * 0.9)
+  def price(order: Order)(implicit user: User) = order.copy(value = order.value * 0.9)
 }
 
 /**
@@ -74,10 +73,23 @@ object AffiliatePricer extends Pricer {
   */
 object LoyaltyPricer extends Pricer {
   /**
-    * Offers 10% discount.
+    * Offers 5% discount.
     * @param user User for whom order is being discounted.
     * @param order Order to be priced.
     * @return Discounted price.
     */
-  def price(user: User, order: Order) = if (user.noOfYears > 2) order.copy(value = order.value * 0.95) else order
+  def price(order: Order)(implicit user: User) = if (user.noOfYears > 2) order.copy(value = order.value * 0.95) else order
+}
+
+/**
+  * Bulk pricing for non-grocery items.
+  */
+object BulkPricer extends Pricer {
+  /**
+    * Offers 5% discount for non grocery items.
+    * @param user User for whom order is being discounted.
+    * @param order Order to be priced.
+    * @return Discounted price.
+    */
+  def price(order: Order)(implicit user: User) = if (!order.isGrocery) order.copy(value = order.value * 0.95) else order
 }
