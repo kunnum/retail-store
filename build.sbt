@@ -10,8 +10,9 @@ publishArtifact in (Test, packageBin) := true
 
 libraryDependencies ++= {
   Seq(
-    "org.scalatest" %% "scalatest" % "2.2.5" % "test"
+    "org.scalatest" %% "scalatest" % "2.2.5" % "test",
+    "org.pegdown" % "pegdown" % "1.4.2" % "test"
   )
 }
 
-testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-u", "target/test-reports")
+testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/test-reports")
