@@ -4,3 +4,5 @@
 
 2. To run the tests run, sbt test
 
+3. Test reports can be found it target/test-reports
+
